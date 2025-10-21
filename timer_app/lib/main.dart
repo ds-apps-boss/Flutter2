@@ -204,7 +204,7 @@ class MainApp extends StatelessWidget {
                               widthFactor: 0.37,
                               alignment: Alignment.centerRight,
                               child: Text(
-                                "88:88",
+                                "88:86",
                                 style: TextStyle(
                                   fontFamily: 'Digital7',
                                   fontSize: 76,
