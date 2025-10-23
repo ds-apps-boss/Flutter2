@@ -1,100 +1,74 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:google_fonts/google_fonts.dart';
-
-class TimerButtonData {
-  final String name;
-  final Alignment pPos;
-  final Alignment aPos;
-  //final Size fileOriginalSize;
-  final Size newSize;
-  final Image image;
-  final VoidCallback onTap;
-
-  TimerButtonData({
-    required this.name,
-    required this.pPos,
-    required this.aPos,
-    //required this.fileOriginalSize,
-    required this.newSize,
-    required this.image,
-    required this.onTap,
-  });
-
-  /*
-  Widget build() {
-    return Align(
-      alignment: pPos,
-      child: SizedBox(
-        width: newSize.width,
-        height: newSize.height,
-        child: image,
-      ),
-    );
-  }
-  */
-}
-
-class TimerButton extends StatefulWidget {
-  final TimerButtonData data;
-  const TimerButton({super.key, required this.data});
-
-  @override
-  State<TimerButton> createState() => _TimerButtonState();
-}
-
-class _TimerButtonState extends State<TimerButton> {
-  bool _isPressed = false;
-  final player = AudioPlayer();
-
-  Future<void> _playClick() async {
-    await player.play(AssetSource('sounds/01.mp3'));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final pos = _isPressed ? widget.data.aPos : widget.data.pPos;
-    return AnimatedAlign(
-      alignment: pos,
-      duration: const Duration(milliseconds: 100),
-      curve: Curves.easeInOut,
-      child: GestureDetector(
-        onTapDown: (_) async {
-          setState(() => _isPressed = true);
-          _playClick();
-        },
-
-        onTapUp: (_) {
-          setState(() => _isPressed = false);
-          widget.data.onTap();
-        },
-        onTapCancel: () => setState(() => _isPressed = false),
-        child: SizedBox(
-          width: widget.data.newSize.width,
-          height: widget.data.newSize.height,
-          child: widget.data.image,
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    player.dispose();
-    super.dispose();
-  }
-}
+import 'package:timer_app/timer_button.dart';
+import 'package:timer_app/lcd_text_element.dart';
+import 'package:timer_app/bottom_toolbar.dart';
+import 'package:timer_app/timer_controller.dart';
 
 void main() {
   runApp(const MainApp());
 }
 
-class MainApp extends StatelessWidget {
+enum RunMode { timer, stopwatch }
+
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
   @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  final TimerController clock = TimerController();
+  bool isRunning = false;
+  RunMode mode = RunMode.stopwatch;
+
+  bool _advancedMode = false;
+
+  void _toggleRun() => clock.toggle();
+  void _switchMode() => setState(() {
+    mode = (mode == RunMode.stopwatch) ? RunMode.timer : RunMode.stopwatch;
+  });
+  void _reset() {
+    if (clock.isRunning) {
+      clock.restart();
+    } else {
+      clock.reset();
+    }
+  }
+
+  void _openSettings() async {
+    /*
+  final result = await showModalBottomSheet<Map<String, dynamic>>(
+    context: context,
+    isScrollControlled: true,
+    //builder: (_) => const TimerSettingsSheet(),
+  );
+
+  if (result != null) {
+    clock.setStartDuration(result['duration']);
+    setState(() => _advancedMode = result['advanced'] ?? false);
+  }
+  */
+  }
+
+  void initState() {
+    super.initState();
+    //clock = TimerController();
+    clock.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    clock.dispose();
+    super.dispose();
+  }
+
   Widget build(BuildContext context) {
+    final disp = clock.display; // "MM:SScc"
+    final mainPart = disp.substring(0, 5); // "MM:SS"
+    final cents = disp.length > 5 ? disp.substring(5) : '00';
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -117,6 +91,7 @@ class MainApp extends StatelessWidget {
         ),
 
         body: SafeArea(
+          top: false,
           //child: Padding(
           //padding: EdgeInsets.fromLTRB(0, 20, 0, 80),
           child: LayoutBuilder(
@@ -151,7 +126,9 @@ class MainApp extends StatelessWidget {
                   leftButtonSize.height * scale,
                 ),
                 image: Image.asset("assets/images/button_left.png"),
-                onTap: () {},
+                onTap: () {
+                  _reset();
+                },
               );
 
               final rightButton = TimerButtonData(
@@ -164,7 +141,9 @@ class MainApp extends StatelessWidget {
                   rightButtonSize.height * scale,
                 ),
                 image: Image.asset("assets/images/button_right.png"),
-                onTap: () {},
+                onTap: () {
+                  clock.toggle();
+                },
               );
 
               final topButton = TimerButtonData(
@@ -177,8 +156,12 @@ class MainApp extends StatelessWidget {
                   topButtonSize.height * scale,
                 ),
                 image: Image.asset("assets/images/button_top.png"),
-                onTap: () {},
+                onTap: () {
+                  _switchMode();
+                },
               );
+
+              final isTimer = (mode == RunMode.timer);
 
               return Center(
                 child: SizedBox.square(
@@ -265,7 +248,7 @@ class MainApp extends StatelessWidget {
                         height: side * 0.22,
                         left: side * 0.325,
                         top: side * 0.42,
-                        showedText: '80:59',
+                        showedText: clock.display.substring(0, 5),
                         debug: false,
                         style: const TextStyle(
                           fontFamily: 'DSEGClassicMini',
@@ -282,7 +265,7 @@ class MainApp extends StatelessWidget {
                         height: side * 0.08,
                         left: side * 0.6,
                         top: side * 0.49,
-                        showedText: '00',
+                        showedText: clock.display.substring(5),
                         debug: false,
                         style: const TextStyle(
                           fontFamily: 'DSEGClassicMini',
@@ -294,15 +277,39 @@ class MainApp extends StatelessWidget {
                         ),
                       ).build(),
 
+                      ///////////
                       LCDTextElement(
                         width: side * 0.15,
                         height: side * 0.035,
-                        left: side * 0.45,
+                        left: isTimer
+                            ? side * 0.25
+                            : side * 0.43, // разные позиции
+                        top: side * 0.39,
+                        showedText: isTimer
+                            ? 'TIMER'
+                            : 'STOPWATCH', // разный текст
+                        debug: false,
+                      ).build(),
+
+                      /*
+                      LCDTextElement(
+                        width: side * 0.15,
+                        height: side * 0.035,
+                        left: side * 0.25,
+                        top: side * 0.39,
+                        showedText: 'TIMER',
+                        debug: false,
+                      ).build(),
+
+                      LCDTextElement(
+                        width: side * 0.15,
+                        height: side * 0.035,
+                        left: side * 0.43,
                         top: side * 0.39,
                         showedText: 'STOPWATCH',
                         debug: false,
                       ).build(),
-
+                      */
                       LCDTextElement(
                         width: side * 0.1,
                         height: side * 0.035,
@@ -320,27 +327,13 @@ class MainApp extends StatelessWidget {
           // ),
         ),
 
-        bottomNavigationBar: BottomAppBar(
-          elevation: 2,
-          // child: SafeArea(
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color.fromARGB(255, 168, 173, 144),
-                  Color.fromARGB(255, 125, 130, 104),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Row(children: [Text("123"), Text("456")]),
-            ),
-          ),
-          //  ),
+        bottomNavigationBar: BottomToolBar(
+          isRunning: clock.isRunning,
+          mode: mode,
+          onToggleRun: _toggleRun,
+          onSwitchMode: _switchMode,
+          onReset: _reset,
+          onOpenSettings: _openSettings,
         ),
       ),
     );
@@ -365,72 +358,4 @@ Future<Size> getAssetImageSize(String assetPath) async {
   stream.addListener(listener);
 
   return completer.future;
-}
-
-class LCDTextElement {
-  final double left;
-  final double top;
-  final double width;
-  final double height;
-  final String showedText;
-  final bool debug;
-  final TextStyle? style;
-
-  LCDTextElement({
-    required this.left,
-    required this.top,
-    required this.width,
-    required this.height,
-    required this.showedText,
-    this.debug = false,
-    this.style,
-  });
-
-  Widget build() {
-    Widget debugWrap(Widget child) {
-      if (!debug) return child;
-      return Container(
-        decoration: BoxDecoration(
-          color: Color.fromARGB(80, 255, 255, 0),
-          border: Border.all(color: Colors.red, width: 1),
-        ),
-        child: child,
-      );
-    }
-
-    TextStyle defaultStyle = GoogleFonts.robotoCondensed(
-      fontWeight: FontWeight.w800,
-      fontSize: 72,
-      letterSpacing: -2,
-      color: Colors.black,
-    );
-
-    return Positioned(
-      left: left,
-      top: top,
-      width: width,
-      height: height,
-      child: debugWrap(
-        FittedBox(
-          fit: BoxFit.contain,
-          alignment: Alignment.centerRight,
-          child: Text(
-            showedText,
-            textAlign: TextAlign.right,
-            textHeightBehavior: TextHeightBehavior(
-              applyHeightToFirstAscent: false,
-              applyHeightToLastDescent: false,
-            ),
-            strutStyle: const StrutStyle(
-              forceStrutHeight: true,
-              height: 1.0,
-              leading: 0.0,
-              fontSize: 100,
-            ),
-            style: style ?? defaultStyle,
-          ),
-        ),
-      ),
-    );
-  }
 }
