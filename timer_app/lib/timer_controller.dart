@@ -1,21 +1,24 @@
 // timer_controller.dart
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 enum RunMode { stopwatch, timer }
 
 class TimerController extends ChangeNotifier {
   RunMode mode = RunMode.stopwatch;
 
-  // Точность обновления UI
-  final Duration _tick = const Duration(milliseconds: 33); // ~30 FPS
+  final player = AudioPlayer();
 
-  // Бизнес-время
-  final Stopwatch _sw = Stopwatch(); // точное измерение прошедшего
-  Duration target = const Duration(minutes: 1); // цель для таймера
+  final Duration _tick = const Duration(milliseconds: 33);
 
-  // Вспомогательные
+  final Stopwatch _sw = Stopwatch();
+  //Duration target = const Duration(minutes: 1);
+  Duration target = const Duration(seconds: 3);
+
   bool _running = false;
+
+  // ignore: unused_field
   Future<void>? _loop;
 
   bool get isRunning => _running;
@@ -26,7 +29,6 @@ class TimerController extends ChangeNotifier {
     return left.isNegative ? Duration.zero : left;
   }
 
-  /// Текст в формате MM:SScc (cc — сотые)
   String get display {
     final Duration d = (mode == RunMode.stopwatch) ? elapsed : remaining;
     final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -84,12 +86,11 @@ class TimerController extends ChangeNotifier {
   }
 
   Future<void> _runLoop() async {
-    // асинхронный «тикер» на await Future.delayed
     while (_running) {
-      // автостоп для таймера
       if (mode == RunMode.timer && remaining == Duration.zero) {
         stop();
-        notifyListeners(); // финальный апдейт на 00:00
+        notifyListeners();
+        _playAlarm();
         break;
       }
       notifyListeners();
@@ -97,9 +98,13 @@ class TimerController extends ChangeNotifier {
     }
   }
 
+  Future<void> _playAlarm() async {
+    await player.play(AssetSource('sounds/alarm.wav'));
+  }
+
   @override
   void dispose() {
-    _running = false; // завершит цикл
+    _running = false;
     super.dispose();
   }
 }

@@ -4,12 +4,13 @@ import 'package:timer_app/timer_button.dart';
 import 'package:timer_app/lcd_text_element.dart';
 import 'package:timer_app/bottom_toolbar.dart';
 import 'package:timer_app/timer_controller.dart';
+import 'package:timer_app/beeper.dart';
 
 void main() {
   runApp(const MainApp());
 }
 
-enum RunMode { timer, stopwatch }
+//enum RunMode { timer, stopwatch }
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -20,15 +21,20 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   final TimerController clock = TimerController();
+  //clock.setMode(clock.mode.stopwatch);
+
   bool isRunning = false;
   RunMode mode = RunMode.stopwatch;
 
-  bool _advancedMode = false;
+  //bool _advancedMode = false;
 
   void _toggleRun() => clock.toggle();
+
   void _switchMode() => setState(() {
     mode = (mode == RunMode.stopwatch) ? RunMode.timer : RunMode.stopwatch;
+    clock.setMode(mode);
   });
+
   void _reset() {
     if (clock.isRunning) {
       clock.restart();
@@ -52,22 +58,23 @@ class _MainAppState extends State<MainApp> {
   */
   }
 
+  @override
   void initState() {
     super.initState();
     //clock = TimerController();
+    clock.setMode(RunMode.stopwatch);
     clock.addListener(() => setState(() {}));
   }
 
-  @override
   void dispose() {
     clock.dispose();
     super.dispose();
   }
 
   Widget build(BuildContext context) {
-    final disp = clock.display; // "MM:SScc"
-    final mainPart = disp.substring(0, 5); // "MM:SS"
-    final cents = disp.length > 5 ? disp.substring(5) : '00';
+    //final disp = clock.display; // "MM:SScc"
+    //final mainPart = disp.substring(0, 5); // "MM:SS"
+    //final cents = disp.length > 5 ? disp.substring(5) : '00';
 
     return MaterialApp(
       home: Scaffold(
@@ -318,6 +325,15 @@ class _MainAppState extends State<MainApp> {
                         showedText: '1/100',
                         debug: false,
                       ).build(),
+
+                      BeepBurstOverlay(
+                        asset: 'assets/images/beep.png',
+                        show:
+                            (isTimer &&
+                            !clock.isRunning &&
+                            clock.remaining == Duration.zero),
+                        onDone: () {},
+                      ),
                     ],
                   ),
                 ),
@@ -329,7 +345,7 @@ class _MainAppState extends State<MainApp> {
 
         bottomNavigationBar: BottomToolBar(
           isRunning: clock.isRunning,
-          mode: mode,
+          mode: clock.mode,
           onToggleRun: _toggleRun,
           onSwitchMode: _switchMode,
           onReset: _reset,

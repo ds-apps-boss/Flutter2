@@ -19,19 +19,6 @@ class TimerButtonData {
     required this.image,
     required this.onTap,
   });
-
-  /*
-  Widget build() {
-    return Align(
-      alignment: pPos,
-      child: SizedBox(
-        width: newSize.width,
-        height: newSize.height,
-        child: image,
-      ),
-    );
-  }
-  */
 }
 
 class TimerButton extends StatefulWidget {
@@ -47,7 +34,7 @@ class _TimerButtonState extends State<TimerButton> {
   final player = AudioPlayer();
 
   Future<void> _playClick() async {
-    await player.play(AssetSource('sounds/01.mp3'));
+    await player.play(AssetSource('sounds/01s.wav'));
   }
 
   @override

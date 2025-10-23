@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:timer_app/main.dart';
+import 'package:timer_app/timer_controller.dart' show RunMode;
 
 class BottomToolBar extends StatelessWidget {
   final bool isRunning;
@@ -10,6 +10,7 @@ class BottomToolBar extends StatelessWidget {
   final VoidCallback onOpenSettings;
 
   const BottomToolBar({
+    super.key,
     required this.isRunning,
     required this.mode,
     required this.onToggleRun,
