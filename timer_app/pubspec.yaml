@@ -1,5 +1,5 @@
 name: timer_app
-description: "A new Flutter project."
+description: "TimerApp - learn Flutter project."
 publish_to: 'none'
 version: 0.1.0
 
@@ -10,78 +10,93 @@ dependencies:
   flutter:
     sdk: flutter
   audioplayers: ^6.1.0
-  google_fonts: ^6.2.1 
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.4.1
+
+
+flutter_icons:
+  android: true
+  ios: true
+  
+  image_path: assets/icons/AppIcon~ios-marketing.png
+  
+flutter_native_splash:
+  color: "#FFFFFF"
+  #color: "#A8AD90"
+  image: assets/icons/AppIcon~ios-marketing.png
+  android_12:
+    color: "#FFFFFF"
+    #color: "#A8AD90"
+    image: assets/icons/AppIcon~ios-marketing.png    
+  android: true
+  ios: true
+  web: false
+  ios_content_mode: center
+  fullscreen: true
 
 flutter:
   uses-material-design: true
 
   assets:
     - assets/images/
-    - assets/sounds/
-    
+    - assets/sounds/    
 
   fonts:
     - family: Digital7
       fonts:
         - asset: assets/fonts/digital7/digital-7.ttf
-        - asset: 'assets/fonts/digital7/digital-7 (italic).ttf'
+        - asset: assets/fonts/digital7/digital-7 (italic).ttf
           style: italic
-    
+
     - family: Digital7Mono
       fonts:
-        - asset: 'assets/fonts/digital7/digital-7 (mono).ttf'
-        - asset: 'assets/fonts/digital7/digital-7 (mono italic).ttf'
+        - asset: assets/fonts/digital7/digital-7 (mono).ttf
+        - asset: assets/fonts/digital7/digital-7 (mono italic).ttf
           style: italic
 
     - family: DS-Digital
       fonts:
-        - asset: 'assets/fonts/DS-Digital/DS-DIGI.TTF'
-          style: normal
-        - asset: 'assets/fonts/DS-Digital/DS-DIGIB.TTF'          
+        - asset: assets/fonts/DS-Digital/DS-DIGI.TTF
+        - asset: assets/fonts/DS-Digital/DS-DIGIB.TTF
           weight: 700
-        - asset: 'assets/fonts/DS-Digital/DS-DIGII.TTF'
+        - asset: assets/fonts/DS-Digital/DS-DIGII.TTF
           style: italic
-        - asset: 'assets/fonts/DS-Digital/DS-DIGIT.TTF'
+        - asset: assets/fonts/DS-Digital/DS-DIGIT.TTF
           style: italic
           weight: 700
 
     - family: DigitalDream
       fonts:
-        - asset: 'assets/fonts/DigitalDream/digital-dream.regular.ttf'
-          style: normal
+        - asset: assets/fonts/DigitalDream/digital-dream.regular.ttf
 
     - family: DigitalDreamNarrow
-      fonts:        
-        - asset: 'assets/fonts/DigitalDream/digital-dream.narrow.ttf'
-          style: normal
-        - asset: 'assets/fonts/DigitalDream/digital-dream.fat-narrow.ttf'          
+      fonts:
+        - asset: assets/fonts/DigitalDream/digital-dream.narrow.ttf
+        - asset: assets/fonts/DigitalDream/digital-dream.fat-narrow.ttf
           weight: 700
 
     - family: DSEGClassicMini
-      fonts:        
-        - asset: 'assets/fonts/DSEG_v046/DSEG7-Classic-MINI/DSEG7ClassicMini-Regular.ttf'
-          style: normal
-        - asset: 'assets/fonts/DSEG_v046/DSEG7-Classic-MINI/DSEG7ClassicMini-Italic.ttf'
+      fonts:
+        - asset: assets/fonts/DSEG_v046/DSEG7-Classic-MINI/DSEG7ClassicMini-Regular.ttf
+        - asset: assets/fonts/DSEG_v046/DSEG7-Classic-MINI/DSEG7ClassicMini-Italic.ttf
           style: italic
-        - asset: 'assets/fonts/DSEG_v046/DSEG7-Classic-MINI/DSEG7ClassicMini-Bold.ttf'
+        - asset: assets/fonts/DSEG_v046/DSEG7-Classic-MINI/DSEG7ClassicMini-Bold.ttf
           weight: 700
-        - asset: 'assets/fonts/DSEG_v046/DSEG7-Classic-MINI/DSEG7ClassicMini-BoldItalic.ttf'
+        - asset: assets/fonts/DSEG_v046/DSEG7-Classic-MINI/DSEG7ClassicMini-BoldItalic.ttf
           style: italic
           weight: 700
-        - asset: 'assets/fonts/DSEG_v046/DSEG7-Classic-MINI/DSEG7ClassicMini-Light.ttf'
+        - asset: assets/fonts/DSEG_v046/DSEG7-Classic-MINI/DSEG7ClassicMini-Light.ttf
           weight: 200
-        - asset: 'assets/fonts/DSEG_v046/DSEG7-Classic-MINI/DSEG7ClassicMini-LightItalic.ttf'
+        - asset: assets/fonts/DSEG_v046/DSEG7-Classic-MINI/DSEG7ClassicMini-LightItalic.ttf
           style: italic
           weight: 200
 
     - family: SevenSegment
-      fonts:        
-        - asset: 'assets/fonts/Seven Segment.ttf'
-          
-
-          
+      fonts:
+        - asset: assets/fonts/Seven Segment.ttf

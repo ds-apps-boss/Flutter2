@@ -59,12 +59,18 @@ class _SettingsSheetState extends State<SettingsSheet> {
 
             const SizedBox(height: 16),
             FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 125, 130, 104),
+              ),
               onPressed: () {
                 widget.onSave(d);
                 Navigator.pop(context);
               },
 
-              child: const Text('Save'),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(30, 5, 30, 5),
+                child: const Text('Save'),
+              ),
             ),
             const SizedBox(height: 8),
           ],
@@ -150,7 +156,12 @@ class _TimerInputsRowState extends State<TimerInputsRow> {
         decoration: InputDecoration(
           labelText: label,
           counterText: '',
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(
+              color: Color.fromARGB(255, 125, 130, 104),
+            ),
+          ),
           isDense: true,
         ),
         onChanged: (_) => _emit(),

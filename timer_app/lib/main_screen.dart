@@ -16,7 +16,10 @@ class MainScreen extends StatefulWidget {
 
 class _MainAppState extends State<MainScreen> {
   final TimerController clock = TimerController();
-  //clock.setMode(clock.mode.stopwatch);
+
+  late final TimerButtonController leftCtrl;
+  late final TimerButtonController topCtrl;
+  late final TimerButtonController rightCtrl;
 
   bool isRunning = false;
   RunMode mode = RunMode.stopwatch;
@@ -63,12 +66,18 @@ class _MainAppState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+    leftCtrl = TimerButtonController();
+    topCtrl = TimerButtonController();
+    rightCtrl = TimerButtonController();
     clock.setMode(RunMode.stopwatch);
     clock.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
+    leftCtrl.dispose();
+    topCtrl.dispose();
+    rightCtrl.dispose();
     clock.dispose();
     super.dispose();
   }
@@ -110,7 +119,7 @@ class _MainAppState extends State<MainScreen> {
             final rightButtonSize = Size(360, 342);
 
             final scale = side / timerFileSizeSide;
-
+            /*
             final leftButton = TimerButtonData(
               name: 'leftButton',
               pPos: Alignment(-0.61, -0.744),
@@ -152,8 +161,41 @@ class _MainAppState extends State<MainScreen> {
                 _switchMode();
               },
             );
-
+*/
             final isTimer = (mode == RunMode.timer);
+
+            final leftSpec = TimerButtonSpec(
+              id: ButtonId.left,
+              pPos: const Alignment(-0.61, -0.744),
+              aPos: const Alignment(-0.57, -0.70),
+              size: Size(
+                leftButtonSize.width * scale,
+                leftButtonSize.height * scale,
+              ),
+              onTap: _reset,
+            );
+
+            final topSpec = TimerButtonSpec(
+              id: ButtonId.top,
+              pPos: const Alignment(0.02, -0.827),
+              aPos: const Alignment(0.02, -0.782),
+              size: Size(
+                topButtonSize.width * scale,
+                topButtonSize.height * scale,
+              ),
+              onTap: _switchMode,
+            );
+
+            final rightSpec = TimerButtonSpec(
+              id: ButtonId.right,
+              pPos: const Alignment(0.64, -0.74),
+              aPos: const Alignment(0.60, -0.70),
+              size: Size(
+                rightButtonSize.width * scale,
+                rightButtonSize.height * scale,
+              ),
+              onTap: _toggleRun,
+            );
 
             return Center(
               child: SizedBox.square(
@@ -161,6 +203,30 @@ class _MainAppState extends State<MainScreen> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
+                    //button left
+                    //TimerButton(data: leftButton),
+                    VisibleButton(
+                      spec: leftSpec,
+                      controller: leftCtrl,
+                      image: Image.asset("assets/images/button_left.png"),
+                    ),
+
+                    //button top
+                    //TimerButton(data: topButton),
+                    VisibleButton(
+                      spec: topSpec,
+                      controller: topCtrl,
+                      image: Image.asset("assets/images/button_top.png"),
+                    ),
+
+                    //button right
+                    // TimerButton(data: rightButton),
+                    VisibleButton(
+                      spec: rightSpec,
+                      controller: rightCtrl,
+                      image: Image.asset("assets/images/button_right.png"),
+                    ),
+
                     //stoppuhr
                     const Positioned.fill(
                       child: FittedBox(
@@ -171,14 +237,9 @@ class _MainAppState extends State<MainScreen> {
                       ),
                     ),
 
-                    //button left
-                    TimerButton(data: leftButton),
-
-                    //button top
-                    TimerButton(data: topButton),
-
-                    //button right
-                    TimerButton(data: rightButton),
+                    InvisibleButton(spec: leftSpec, controller: leftCtrl),
+                    InvisibleButton(spec: topSpec, controller: topCtrl),
+                    InvisibleButton(spec: rightSpec, controller: rightCtrl),
 
                     /*
                       Positioned(
@@ -299,7 +360,6 @@ class _MainAppState extends State<MainScreen> {
             );
           },
         ),
-        // ),
       ),
 
       bottomNavigationBar: BottomToolBar(
@@ -310,7 +370,6 @@ class _MainAppState extends State<MainScreen> {
         onReset: _reset,
         onOpenSettings: _openSettings,
       ),
-      // ),
     );
   }
 }
