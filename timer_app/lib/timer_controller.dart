@@ -90,7 +90,13 @@ class TimerController extends ChangeNotifier {
       if (mode == RunMode.timer && remaining == Duration.zero) {
         stop();
         notifyListeners();
-        _playAlarm();
+        await _playAlarm();
+
+        Future.delayed(const Duration(seconds: 2), () {
+          _sw.reset();
+          notifyListeners();
+        });
+
         break;
       }
       notifyListeners();
