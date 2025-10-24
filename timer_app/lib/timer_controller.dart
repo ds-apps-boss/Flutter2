@@ -12,7 +12,6 @@ class TimerController extends ChangeNotifier {
   final Duration _tick = const Duration(milliseconds: 33);
 
   final Stopwatch _sw = Stopwatch();
-  //Duration target = const Duration(minutes: 1);
   Duration target = const Duration(seconds: 3);
 
   bool _running = false;
@@ -22,6 +21,36 @@ class TimerController extends ChangeNotifier {
 
   bool get isRunning => _running;
   Duration get elapsed => _sw.elapsed;
+
+  Future<void> start() async {
+    if (_running) return;
+    _running = true;
+    _sw.start();
+    notifyListeners();
+    _loop = _runLoop();
+    await _loop;
+  }
+
+  Future<void> stop() async {
+    if (!_running) return;
+    _running = false;
+    _sw.stop();
+    notifyListeners();
+    await Future<void>.delayed(Duration.zero);
+  }
+
+  Future<void> restart() async {
+    await stop();
+    _sw.reset();
+    notifyListeners();
+    await start();
+  }
+
+  Future<void> reset() async {
+    await stop();
+    _sw.reset();
+    notifyListeners();
+  }
 
   Duration get remaining {
     final left = target - _sw.elapsed;
@@ -53,36 +82,6 @@ class TimerController extends ChangeNotifier {
   }
 
   void toggle() => _running ? stop() : start();
-
-  void start() {
-    if (_running) return;
-    _running = true;
-    _sw.start();
-    notifyListeners();
-    _loop = _runLoop();
-  }
-
-  void stop() {
-    if (!_running) return;
-    _running = false;
-    _sw.stop();
-    notifyListeners();
-  }
-
-  void reset() {
-    stop();
-    _sw.reset();
-    notifyListeners();
-  }
-
-  Future<void> restart() async {
-    _running = false;
-    _sw.stop();
-    _sw.reset();
-    _running = true;
-    _sw.start();
-    _loop = _runLoop();
-  }
 
   Future<void> _runLoop() async {
     while (_running) {

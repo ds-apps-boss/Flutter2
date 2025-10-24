@@ -55,11 +55,11 @@ class _MainAppState extends State<MainScreen> {
     clock.setMode(mode);
   });
 
-  void _reset() {
+  void _reset() async {
     if (clock.isRunning) {
-      clock.restart();
+      await clock.restart();
     } else {
-      clock.reset();
+      await clock.reset();
     }
   }
 
@@ -119,49 +119,7 @@ class _MainAppState extends State<MainScreen> {
             final rightButtonSize = Size(360, 342);
 
             final scale = side / timerFileSizeSide;
-            /*
-            final leftButton = TimerButtonData(
-              name: 'leftButton',
-              pPos: Alignment(-0.61, -0.744),
-              aPos: Alignment(-0.57, -0.7),
-              newSize: Size(
-                leftButtonSize.width * scale,
-                leftButtonSize.height * scale,
-              ),
-              image: Image.asset("assets/images/button_left.png"),
-              onTap: () {
-                _reset();
-              },
-            );
 
-            final rightButton = TimerButtonData(
-              name: 'leftButton',
-              pPos: Alignment(0.64, -0.74),
-              aPos: Alignment(0.6, -0.7),
-              newSize: Size(
-                rightButtonSize.width * scale,
-                rightButtonSize.height * scale,
-              ),
-              image: Image.asset("assets/images/button_right.png"),
-              onTap: () {
-                clock.toggle();
-              },
-            );
-
-            final topButton = TimerButtonData(
-              name: 'topButton',
-              pPos: Alignment(0.02, -0.827),
-              aPos: Alignment(0.02, -0.782),
-              newSize: Size(
-                topButtonSize.width * scale,
-                topButtonSize.height * scale,
-              ),
-              image: Image.asset("assets/images/button_top.png"),
-              onTap: () {
-                _switchMode();
-              },
-            );
-*/
             final isTimer = (mode == RunMode.timer);
 
             final leftSpec = TimerButtonSpec(
@@ -241,59 +199,6 @@ class _MainAppState extends State<MainScreen> {
                     InvisibleButton(spec: topSpec, controller: topCtrl),
                     InvisibleButton(spec: rightSpec, controller: rightCtrl),
 
-                    /*
-                      Positioned(
-                        left: side * 0.325,
-                        top: side * 0.407,
-                        width: side * 0.355,
-                        height: side * 0.18,
-                        child:
-                            //test
-                            
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(80, 255, 255, 0),
-                                border: Border.all(color: Colors.red, width: 1),
-                              ),
-                              child: 
-                            FittedBox(
-                              fit: BoxFit
-                                  .contain, // подгонит текст по высоте/ширине окна
-                              alignment: Alignment
-                                  .centerRight, // как у настоящих часов — выравниваем справа
-                              child: Text(
-                                '03:47',
-                                textAlign: TextAlign.right,
-                                textHeightBehavior: TextHeightBehavior(
-                                  applyHeightToFirstAscent: false,
-                                  applyHeightToLastDescent: false,
-                                ),
-                                strutStyle: const StrutStyle(
-                                  forceStrutHeight: true,
-                                  height: 1.0,
-                                  leading: 0.0,
-                                  fontSize:
-                                      100, // любое — FittedBox всё равно подгонит
-                                  //fontFamily: 'Digital7',
-                                ),
-                                style: const TextStyle(
-                                  //fontFamily: 'DSEGClassicMini',
-                                  fontFamily: 'SevenSegment',
-                                  //fontWeight: FontWeight.w700,
-                                  fontSize:
-                                      100, // любое — масштабирует FittedBox
-                                  height: 1.0, // плотнее по вертикали
-                                  letterSpacing:
-                                      -2, // чуть сжать по горизонтали (опционально)
-                                  color: Color.fromARGB(200, 0, 0, 0),
-                                  // fontFeatures: [FontFeature.tabularFigures()], // если шрифт поддерживает
-                                ),
-                                  ),
-                              ),
-                            ),
-*/
-
-                    //           ),
                     LCDTextElement(
                       width: side * 0.27,
                       height: side * 0.22,
@@ -327,6 +232,15 @@ class _MainAppState extends State<MainScreen> {
                         color: Color.fromARGB(200, 0, 0, 0),
                       ),
                     ).build(),
+
+                    ColonBlink(
+                      clock: clock,
+                      left: side * 0.454,
+                      top: side * 0.48,
+                      width: side * 0.014,
+                      height: side * 0.07,
+                      color: Color.fromARGB(255, 156, 161, 130),
+                    ),
 
                     LCDTextElement(
                       width: side * 0.15,
@@ -392,4 +306,46 @@ Future<Size> getAssetImageSize(String assetPath) async {
   stream.addListener(listener);
 
   return completer.future;
+}
+
+class ColonBlink extends StatelessWidget {
+  const ColonBlink({
+    super.key,
+    required this.clock,
+    required this.left,
+    required this.top,
+    required this.width,
+    required this.height,
+    this.fade = const Duration(milliseconds: 120),
+    this.color = const Color.fromARGB(199, 202, 189, 8),
+  });
+
+  final TimerController clock;
+  final double left, top, width, height;
+  final Duration fade;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: clock,
+      builder: (_, __) {
+        final ms = clock.elapsed.inMilliseconds % 1000;
+        final bool hide = clock.isRunning && ms >= 500;
+        return Positioned(
+          left: left,
+          top: top,
+          width: width,
+          height: height,
+          child: IgnorePointer(
+            child: AnimatedOpacity(
+              opacity: hide ? 1 : 0,
+              duration: fade,
+              child: Container(color: color),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
