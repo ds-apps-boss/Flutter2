@@ -30,6 +30,7 @@ class _DogAPIState extends State<DogAPI> {
   static const String link = "https://dog.ceo/api/";
 
   List<String> breeds = [];
+  List<String> thumbs = [];
 
   Future<dynamic> getDataFromAPI(String url) async {
     setState(() => isLoading = true);
@@ -65,6 +66,40 @@ class _DogAPIState extends State<DogAPI> {
       });
     } catch (e) {
       debugPrint('Load-ERR: $e');
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> buildThumbs() async {
+    String suffix = "";
+    if (selected == null) {
+      suffix = "breeds/image/random/20";
+    } else {
+      suffix = "breed/";
+      if (selected!.contains(' ')) {
+        final words = selected!.split(' ');
+        suffix = '$suffix${words[1]}/${words[0]}';
+      } else {
+        suffix = '$suffix$selected';
+      }
+      suffix = '$suffix/images';
+    }
+
+    setState(() {
+      isLoading = true;
+      //imageUrl = null;
+    });
+
+    try {
+      final data = await getDataFromAPI('$link$suffix');
+      setState(() {
+        // thumbs = data['message'].toList();
+        thumbs = List<String>.from(data['message']);
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Thumbs-load-ERR: $e');
     } finally {
       setState(() => isLoading = false);
     }
@@ -109,6 +144,7 @@ class _DogAPIState extends State<DogAPI> {
     super.initState();
     getAllBreeds();
     fetchDogImage();
+    buildThumbs();
   }
 
   @override
@@ -125,6 +161,7 @@ class _DogAPIState extends State<DogAPI> {
                 onChanged: (value) => setState(() {
                   selected = value;
                   fetchDogImage();
+                  buildThumbs();
                   //print("selected = $selected");
                 }),
                 items: breeds
@@ -153,6 +190,38 @@ class _DogAPIState extends State<DogAPI> {
                         //'https://images.template.net/528959/Scrapbook-Dog-Lost-Blank-Poster-Template-edit-online.png',
                       ),
                 //: Image.network('https://dog.ceo/img/dog-api-logo.svg'),
+              ),
+
+              SizedBox(
+                height: 100,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: thumbs.length,
+                  itemBuilder: (context, index) {
+                    final url = thumbs[index];
+                    return Padding(
+                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            imageUrl = url;
+                          });
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            url,
+                            width: 80,
+                            height: 100,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.broken_image, size: 60),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
